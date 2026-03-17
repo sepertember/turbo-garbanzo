@@ -1,0 +1,4 @@
+2026-03-17 16:50:38 - BATCH_START - D:\gitproject\turbo-garbanzo\raw_files -> D:\gitproject\turbo-garbanzo\converted_files - Operation: CSV2TXT
+2026-03-17 16:50:38 - EXTRACT_METADATA - D:\gitproject\turbo-garbanzo\raw_files\data.csv - Success
+2026-03-17 16:50:38 - CONVERT - D:\gitproject\turbo-garbanzo\raw_files\data.csv - Success -> D:\gitproject\turbo-garbanzo\converted_files\data.txt
+2026-03-17 16:50:38 - BATCH_END - Summary - Success: 1, Failed: 0, Skipped: 0
