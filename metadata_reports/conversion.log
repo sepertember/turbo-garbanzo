@@ -1,0 +1,6 @@
+2026-03-17 17:10:50 - METADATA - D:\gitproject\turbo-garbanzo3\raw_files\empty.txt - SUCCESS - 元数据提取完成
+2026-03-17 17:10:50 - METADATA - D:\gitproject\turbo-garbanzo3\raw_files\test1.txt - SUCCESS - 元数据提取完成
+2026-03-17 17:10:50 - METADATA - D:\gitproject\turbo-garbanzo3\raw_files\test2.txt - SUCCESS - 元数据提取完成
+2026-03-17 17:10:50 - SKIP - D:\gitproject\turbo-garbanzo3\raw_files\empty.txt - SKIPPED - 无效文件: 空文件
+2026-03-17 17:10:50 - CONVERT - D:\gitproject\turbo-garbanzo3\raw_files\test1.txt - SUCCESS - 转换成功: D:\gitproject\turbo-garbanzo3\raw_files\test1.txt -> D:\gitproject\turbo-garbanzo3\converted_files\test1.csv
+2026-03-17 17:10:50 - CONVERT - D:\gitproject\turbo-garbanzo3\raw_files\test2.txt - SUCCESS - 转换成功: D:\gitproject\turbo-garbanzo3\raw_files\test2.txt -> D:\gitproject\turbo-garbanzo3\converted_files\test2.csv
