@@ -1,0 +1,3 @@
+This file should be excluded from scanning.
+It contains keywords like test, Python, search.
+But it should not be scanned or modified.
