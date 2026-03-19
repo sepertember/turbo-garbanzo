@@ -1,172 +1,103 @@
 """
-程序入口
-处理用户输入、调用扫描和统计模块
+文件元数据备份工具 - 程序入口
+
+该程序扫描指定的输入目录，递归获取所有文件，计算每个文件的SHA-256哈希值，
+并记录元数据（路径、大小、修改时间）。然后根据backup_rules.json规则文件
+决定哪些文件需要备份到输出目录，最后生成一份包含所有处理文件信息的JSON报告。
 """
-
+import os
 import sys
-from constants import SCAN_ROOT_DIR, OUTPUT_DIR
-from directory_scanner import DirectoryScanner
-from keyword_counter import KeywordCounter
-from report_builder import ReportBuilder
 
+# 确保可以导入本地模块
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-def get_keywords_from_user():
-    """
-    从用户输入获取关键词列表
-
-    Returns:
-        list: 关键词列表
-    """
-    print("=" * 60)
-    print(" " * 15 + "本地文件内容检索工具")
-    print("=" * 60)
-    print(f"\n扫描目录: {SCAN_ROOT_DIR}")
-    print(f"输出目录: {OUTPUT_DIR}")
-    print("\n请输入要检索的关键词（支持中英文，区分大小写）")
-    print("多个关键词请用逗号分隔，输入 'quit' 退出程序")
-    print("-" * 60)
-
-    while True:
-        user_input = input("\n请输入关键词: ").strip()
-
-        if user_input.lower() == 'quit':
-            print("程序已退出")
-            sys.exit(0)
-
-        if not user_input:
-            print("错误: 关键词不能为空，请重新输入")
-            continue
-
-        keywords = [kw.strip() for kw in user_input.split(",") if kw.strip()]
-
-        if not keywords:
-            print("错误: 未检测到有效关键词，请重新输入")
-            continue
-
-        print(f"\n已输入 {len(keywords)} 个关键词:")
-        for i, keyword in enumerate(keywords, 1):
-            print(f"  {i}. {keyword}")
-
-        confirm = input("\n确认开始检索? (y/n): ").strip().lower()
-        if confirm == 'y':
-            return keywords
-        else:
-            print("请重新输入关键词")
-
-
-def run_search(keywords):
-    """
-    执行文件检索
-
-    Args:
-        keywords: 关键词列表
-
-    Returns:
-        bool: 检索是否成功
-    """
-    print("\n" + "=" * 60)
-    print("开始执行文件检索...")
-    print("=" * 60)
-
-    try:
-        print("\n[1/4] 正在扫描目录...")
-        scanner = DirectoryScanner(SCAN_ROOT_DIR)
-        valid_files, skipped_files = scanner.scan()
-        scan_stats = scanner.get_statistics()
-
-        print(f"      找到 {len(valid_files)} 个有效文件")
-        print(f"      跳过 {len(skipped_files)} 个文件")
-
-        if not valid_files:
-            print("\n警告: 未找到符合条件的文件，检索结束")
-            return False
-
-        print("\n[2/4] 正在统计关键词...")
-        counter = KeywordCounter(keywords)
-        keyword_results = counter.count_in_files(valid_files)
-
-        total_matches = 0
-        for data in keyword_results.values():
-            counts = data.get("counts", {})
-            if "error" not in counts:
-                total_matches += sum(counts.values())
-
-        print(f"      共找到 {total_matches} 处匹配")
-
-        print("\n[3/4] 正在生成报告...")
-        builder = ReportBuilder(keywords, scan_stats)
-        report_content = builder.build_report(keyword_results, skipped_files)
-
-        report_path = builder.save_report(report_content)
-        print(f"      报告已保存: {report_path}")
-
-        print("\n[4/4] 检索完成!")
-        print("-" * 60)
-
-        print_summary(keyword_results, keywords)
-
-        return True
-
-    except FileNotFoundError as e:
-        print(f"\n错误: {str(e)}")
-        print(f"请确保目录存在: {SCAN_ROOT_DIR}")
-        return False
-
-    except PermissionError as e:
-        print(f"\n错误: 权限不足 - {str(e)}")
-        return False
-
-    except Exception as e:
-        print(f"\n错误: 检索过程中发生异常 - {str(e)}")
-        return False
-
-
-def print_summary(keyword_results, keywords):
-    """
-    打印检索摘要
-
-    Args:
-        keyword_results: 关键词统计结果
-        keywords: 关键词列表
-    """
-    print("\n【检索摘要】")
-
-    keyword_totals = {keyword: 0 for keyword in keywords}
-
-    for file_path, data in keyword_results.items():
-        counts = data.get("counts", {})
-        if "error" not in counts:
-            for keyword, count in counts.items():
-                if keyword in keyword_totals:
-                    keyword_totals[keyword] += count
-
-    sorted_totals = sorted(keyword_totals.items(), key=lambda x: x[1], reverse=True)
-
-    print("\n各关键词总出现次数（按频率排序）:")
-    for rank, (keyword, total) in enumerate(sorted_totals, 1):
-        print(f"  {rank}. '{keyword}': {total} 次")
-
-    print("\n" + "=" * 60)
+from config.settings import INPUT_DIR, OUTPUT_DIR
+from utils.file_utils import validate_input_directory, ensure_directory_exists
+from core.scanner import scan_directory, get_absolute_path
+from core.hasher import calculate_sha256
+from core.backup import load_backup_rules, backup_files
+from core.reporter import create_report_data, generate_report
 
 
 def main():
     """
-    程序主入口
+    主函数：协调各模块完成备份任务
     """
-    try:
-        keywords = get_keywords_from_user()
-        success = run_search(keywords)
-
-        if success:
-            print("\n详细报告请查看: ./search_results/search_report.txt")
-
-    except KeyboardInterrupt:
-        print("\n\n程序被用户中断")
-        sys.exit(0)
-
-    except EOFError:
-        print("\n\n输入结束")
-        sys.exit(0)
+    print("=" * 60)
+    print("文件元数据备份工具")
+    print("=" * 60)
+    
+    # 1. 验证输入目录
+    print(f"\n[1/5] 验证输入目录: {INPUT_DIR}")
+    validate_input_directory(INPUT_DIR)
+    print("  ✓ 输入目录验证通过")
+    
+    # 2. 确保输出目录存在
+    print(f"\n[2/5] 确保输出目录存在: {OUTPUT_DIR}")
+    ensure_directory_exists(OUTPUT_DIR)
+    print("  ✓ 输出目录准备就绪")
+    
+    # 3. 扫描输入目录
+    print(f"\n[3/5] 扫描输入目录...")
+    file_list = scan_directory(INPUT_DIR)
+    print(f"  ✓ 发现 {len(file_list)} 个文件")
+    
+    if not file_list:
+        print("\n  警告: 输入目录为空，没有文件需要处理")
+        return
+    
+    # 4. 加载备份规则
+    print(f"\n[4/5] 加载备份规则...")
+    rules = load_backup_rules()
+    print(f"  ✓ 加载了 {len(rules)} 条备份规则")
+    
+    # 5. 计算哈希值并执行备份
+    print(f"\n[5/5] 处理文件（计算哈希值并备份）...")
+    file_hashes = {}
+    backed_up_files = []
+    
+    for i, relative_path in enumerate(file_list, 1):
+        abs_path = get_absolute_path(relative_path, INPUT_DIR)
+        
+        # 计算哈希值
+        file_hash = calculate_sha256(abs_path)
+        if file_hash:
+            file_hashes[relative_path] = file_hash
+        
+        # 显示进度
+        if i % 10 == 0 or i == len(file_list):
+            print(f"  进度: {i}/{len(file_list)} 文件已处理")
+    
+    # 执行备份
+    backed_up_files = backup_files(file_list, rules, INPUT_DIR, OUTPUT_DIR)
+    print(f"  ✓ 已备份 {len(backed_up_files)} 个文件")
+    
+    # 6. 生成报告
+    print(f"\n[6/6] 生成报告...")
+    report_data = create_report_data(
+        file_list,
+        file_hashes,
+        backed_up_files,
+        INPUT_DIR,
+    )
+    
+    success = generate_report(report_data)
+    if success:
+        print(f"  ✓ 报告已生成: {os.path.join(OUTPUT_DIR, 'backup_report.json')}")
+    else:
+        print(f"  ✗ 报告生成失败")
+    
+    # 7. 打印摘要
+    print("\n" + "=" * 60)
+    print("处理摘要")
+    print("=" * 60)
+    print(f"总文件数:     {len(file_list)}")
+    print(f"成功计算哈希: {len(file_hashes)}")
+    print(f"已备份文件:   {len(backed_up_files)}")
+    print(f"跳过备份:     {len(file_list) - len(backed_up_files)}")
+    print("=" * 60)
+    print("备份任务完成！")
+    print("=" * 60)
 
 
 if __name__ == "__main__":
