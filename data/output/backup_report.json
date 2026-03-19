@@ -1,0 +1,63 @@
+{
+  "generated_at": "2026-03-19 13:44:47",
+  "total_files": 8,
+  "backed_up_count": 6,
+  "files": [
+    {
+      "path": "backup_rules.json",
+      "hash": "7931aa17376f67b2abad94749e7e534b4468b01ae2d8a9169ca1efc24c89fe57",
+      "size_bytes": 100,
+      "modified_time": "2026-03-19 13:44:11",
+      "backed_up": true
+    },
+    {
+      "path": "debug.log",
+      "hash": "f039b2cbb0f94240b6602c121f1b73160a7e570c73d79ea478da333d92308ff1",
+      "size_bytes": 94,
+      "modified_time": "2026-03-19 13:44:19",
+      "backed_up": false
+    },
+    {
+      "path": "document.txt",
+      "hash": "2a445a6d3aaa3d302ad7bce357991f02931ae3a0bc58300f37dbb05e83726330",
+      "size_bytes": 167,
+      "modified_time": "2026-03-19 13:44:13",
+      "backed_up": true
+    },
+    {
+      "path": "readme.md",
+      "hash": "4ea88084a8df950267f1f5346979e4371c114029c1ef91ca9fd3551d8610c01b",
+      "size_bytes": 339,
+      "modified_time": "2026-03-19 13:44:17",
+      "backed_up": true
+    },
+    {
+      "path": "script.py",
+      "hash": "802e46207e9419580865c55efe964aba9a78268207bb6d947ec030e35e77b949",
+      "size_bytes": 169,
+      "modified_time": "2026-03-19 13:44:15",
+      "backed_up": true
+    },
+    {
+      "path": "temp.tmp",
+      "hash": "78e92c01e1120af74a0e59d2a2f40ed3dd316cc02c41c1fbbf05dcf902bfeb18",
+      "size_bytes": 49,
+      "modified_time": "2026-03-19 13:44:18",
+      "backed_up": false
+    },
+    {
+      "path": "subfolder\\data.json",
+      "hash": "88a59beb06ed76cdc87bed76047ed2533af5a2dcc58807e85cc9246579347a44",
+      "size_bytes": 99,
+      "modified_time": "2026-03-19 13:44:35",
+      "backed_up": true
+    },
+    {
+      "path": "subfolder\\nested.txt",
+      "hash": "9a8b36d0ca67cfea5f141919cb72947d3d32ea8e293da8387669f06926435b49",
+      "size_bytes": 181,
+      "modified_time": "2026-03-19 13:44:35",
+      "backed_up": true
+    }
+  ]
+}

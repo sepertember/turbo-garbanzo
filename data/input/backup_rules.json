@@ -1,0 +1,8 @@
+{
+  ".txt": true,
+  ".py": true,
+  ".json": true,
+  ".md": true,
+  ".log": false,
+  ".tmp": false
+}
